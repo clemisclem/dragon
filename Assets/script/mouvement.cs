@@ -20,6 +20,8 @@ public class mouvement : MonoBehaviour
     [SerializeField] private float timer;
     [Tooltip("Masse add when eating")]
     [SerializeField] private float poid;
+    [Tooltip("distance where the food is spwaned")]
+    [SerializeField] private float distance;
     [Tooltip("How many things the player can eat")]
     [SerializeField] private float stomachMax;
     [SerializeField] private bool isJump = false;
@@ -53,7 +55,7 @@ public class mouvement : MonoBehaviour
         {
             if (!isJump)
             {
-                rb.AddForce(0, jumpForce * Time.deltaTime, 0);
+                rb.AddForce(0, jumpForce, 0);
                 isJump = true;
             }
             else
@@ -67,13 +69,13 @@ public class mouvement : MonoBehaviour
             isFloating = false;
             rb.useGravity = true;
         }
-        if (Input.GetButtonDown("Fire1") || Input.GetAxis("LT") > 0 )
+        if (Input.GetButtonDown("Fire1"))
         {
             mouth.SetActive(true);
             
         }
         
-        if (Input.GetButtonUp("Fire1") || Input.GetAxis("LT") <= 0)
+        if (Input.GetButtonUp("Fire1"))
         {
             mouth.SetActive(false);
 
@@ -83,18 +85,30 @@ public class mouvement : MonoBehaviour
             aspiredObjects.Clear();
         }
 
-        if (Input.GetButtonDown("Fire2") || Input.GetButtonDown("Fire3"))
+        if (Input.GetButtonDown("Fire3"))
         {
             if(list.Count > 0 )
             {
                 GameObject obj = list[list.Count - 1];
                 list.RemoveAt(list.Count - 1);
                 obj.SetActive(true);
-                obj.transform.position = model.transform.position + model.transform.forward * 2;
+                obj.transform.position = model.transform.position + model.transform.forward * distance;
                 addMass(-poid);
                 Rigidbody objRb = obj.GetComponent<Rigidbody>();
-                objRb.AddForce(model.transform.forward * force * Time.deltaTime);
+                objRb.AddForce(model.transform.forward * force);
             }
+        }
+        if(Input.GetButtonDown("Fire2"))
+        {
+            if (list.Count > 0)
+            {
+                GameObject obj = list[list.Count - 1];
+                list.RemoveAt(list.Count - 1);
+                obj.SetActive(true);
+                obj.transform.position = model.transform.position + model.transform.forward * distance;
+                addMass(-poid);
+            }
+
         }
 
         if(Input.GetButtonDown("X"))
@@ -112,12 +126,12 @@ public class mouvement : MonoBehaviour
         }
         if(isJump)
         {
-            rb.AddForce(0, -gravity * Time.deltaTime, 0);
+            rb.AddForce(0, -gravity, 0);
         }
         if (isFloating)
         {
             rb.useGravity = false;
-            rb.AddForce(0, -floatingForce * Time.deltaTime, 0);
+            rb.AddForce(0, -floatingForce, 0);
         }
         mouvHor = Input.GetAxis("Horizontal");
         mouvVer = Input.GetAxis("Vertical");
@@ -125,7 +139,7 @@ public class mouvement : MonoBehaviour
         if (inputDir != Vector2.zero)
         {
             float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
-           model.transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(model.transform.eulerAngles.y, rotation, ref smooth, 0.2f);
+            model.transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(model.transform.eulerAngles.y, rotation, ref smooth, 0.2f);
         }
         rb.AddForce(mouvHor * Time.deltaTime * speed, 0, mouvVer * Time.deltaTime * speed);
         cam.rotation = rotateCam;
@@ -169,7 +183,7 @@ public class mouvement : MonoBehaviour
     {
         if (!isJump)
         {
-            rb.AddForce(0, jumpForce * Time.deltaTime, 0);
+            rb.AddForce(0, jumpForce, 0);
             isJump = true;
         }
         else
