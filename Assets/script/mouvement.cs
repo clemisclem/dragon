@@ -37,14 +37,11 @@ public class mouvement : MonoBehaviour
     [SerializeField] private List<aspiration> aspiredObjects;
     private void Start()
     {
-        script.mouve = this;
 
     }
     private void Awake()
     {
-
         rotateCam = cam.rotation;
-
     }
 
     // Update is called once per frame
@@ -56,7 +53,7 @@ public class mouvement : MonoBehaviour
         {
             if (!isJump)
             {
-                rb.AddForce(0, jumpForce, 0);
+                rb.AddForce(0, jumpForce * Time.deltaTime, 0);
                 isJump = true;
             }
             else
@@ -96,7 +93,7 @@ public class mouvement : MonoBehaviour
                 obj.transform.position = model.transform.position + model.transform.forward * 2;
                 addMass(-poid);
                 Rigidbody objRb = obj.GetComponent<Rigidbody>();
-                objRb.AddForce(model.transform.forward * force);
+                objRb.AddForce(model.transform.forward * force * Time.deltaTime);
             }
         }
 
@@ -115,12 +112,12 @@ public class mouvement : MonoBehaviour
         }
         if(isJump)
         {
-            rb.AddForce(0, -gravity, 0);
+            rb.AddForce(0, -gravity * Time.deltaTime, 0);
         }
         if (isFloating)
         {
             rb.useGravity = false;
-            rb.AddForce(0, -floatingForce, 0);
+            rb.AddForce(0, -floatingForce * Time.deltaTime, 0);
         }
         mouvHor = Input.GetAxis("Horizontal");
         mouvVer = Input.GetAxis("Vertical");
@@ -172,7 +169,7 @@ public class mouvement : MonoBehaviour
     {
         if (!isJump)
         {
-            rb.AddForce(0, jumpForce, 0);
+            rb.AddForce(0, jumpForce * Time.deltaTime, 0);
             isJump = true;
         }
         else
