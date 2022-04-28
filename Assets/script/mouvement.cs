@@ -27,8 +27,13 @@ public class mouvement : MonoBehaviour
     [SerializeField] private float distance;
     [Tooltip("How many things the player can eat")]
     [SerializeField] private float stomachMax;
+    [Tooltip("force apply to the player whene on wall and jumping")]
+    [SerializeField] private float wallForceOnJump;
+    [Tooltip("force apply to the player whene on wall and floating")]
+    [SerializeField] private float wallForceOnFloat;
     [SerializeField] private bool isJump = false;
     [SerializeField] private bool isFloating = false;
+    [SerializeField] private bool onWall = false;
     [SerializeField] private GameObject mouth;
     [SerializeField] public List<GameObject> list;
     [SerializeField] public aspiration script;
@@ -142,12 +147,26 @@ public class mouvement : MonoBehaviour
         }
         if (isJump)
         {
-            rb.AddForce(0, -gravity, 0);
+            if(onWall)
+                rb.AddForce(0, -gravity * wallForceOnJump, 0);
+            else if(!onWall)
+                rb.AddForce(0, -gravity, 0);
         }
         if (isFloating)
         {
-            rb.useGravity = false;
-            rb.AddForce(0, -floatingForce, 0);
+            if (onWall)
+            {
+                rb.useGravity = false;
+                rb.AddForce(0, -floatingForce * wallForceOnFloat, 0);
+            }
+            else if (!onWall)
+            {
+                rb.useGravity = false;
+                rb.AddForce(0, -floatingForce, 0);
+
+            }
+
+
         }
         mouvHor = Input.GetAxis("Horizontal");
         mouvVer = Input.GetAxis("Vertical");
@@ -161,11 +180,6 @@ public class mouvement : MonoBehaviour
         sliderTime();
         cam.rotation = rotateCam;
     }
-    private void FixedUpdate()
-    {
-        //rb.velocity = new Vector3(mouvHor, 0, mouvVer) * Time.fixedDeltaTime * speed;
-    }
-
 
     public void RegisterAspiredObject(aspiration aspired)
     {
@@ -189,6 +203,21 @@ public class mouvement : MonoBehaviour
             isFloating = false;
             rb.useGravity = true;
         }
+        if (collision.gameObject.layer == 12)
+        {
+            onWall = true;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == 12)
+        {
+            onWall = false;
+
+        }
+
+
     }
 
     public void addMass(float masse)
@@ -199,24 +228,6 @@ public class mouvement : MonoBehaviour
     public void addList(GameObject obj)
     {
         list.Add(obj);
-    }
-
-    public void Jump()
-    {
-        if (!isJump)
-        {
-            rb.AddForce(0, jumpForce, 0);
-            isJump = true;
-        }
-        else
-        {
-            isFloating = true;
-        }
-    }
-    public void stopJump()
-    {
-        isFloating = false;
-        rb.useGravity = true;
     }
 
     public void concentration()

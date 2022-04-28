@@ -464,7 +464,7 @@ GameObject:
   - component: {fileID: 636271716}
   - component: {fileID: 636271715}
   - component: {fileID: 636271719}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -954,7 +954,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
       propertyPath: speed
-      value: 20
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
       propertyPath: slider
@@ -967,6 +967,18 @@ PrefabInstance:
     - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
       propertyPath: jumpForce
       value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
+      propertyPath: wallForce
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
+      propertyPath: wallForceOnJump
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361021472584984980, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
+      propertyPath: wallForceOnFloat
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 6361021472584985006, guid: 5ae7d3a0c6299bc41bf22feff1ba0363, type: 3}
       propertyPath: m_Name
