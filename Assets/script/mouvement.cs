@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class mouvement : MonoBehaviour
 {
     [SerializeField] private Rigidbody rb;
     [SerializeField] private float mouvHor;
     [SerializeField] private float mouvVer;
+    [SerializeField] private float current;
+    [SerializeField] private float start;
     [Tooltip("Force add when player jump")]
     [SerializeField] private float jumpForce;
     [Tooltip("Force add when player is floating")]
@@ -33,8 +36,10 @@ public class mouvement : MonoBehaviour
     [SerializeField] private Quaternion rotateCam;
     [SerializeField] private GameObject model;
     [SerializeField] private GameObject boule;
+    [SerializeField] private Slider slider;
     private float smooth;
     private bool conc = false;
+    private bool needTime = false;
 
     [SerializeField] private List<aspiration> aspiredObjects;
     private void Start()
@@ -46,11 +51,13 @@ public class mouvement : MonoBehaviour
         rotateCam = cam.rotation;
     }
 
+
+
     // Update is called once per frame
     void Update()
     {
 
-        
+
         if (Input.GetButtonDown("Jump"))
         {
             if (!isJump)
@@ -72,9 +79,9 @@ public class mouvement : MonoBehaviour
         if (Input.GetButtonDown("Fire1"))
         {
             mouth.SetActive(true);
-            
+
         }
-        
+
         if (Input.GetButtonUp("Fire1"))
         {
             mouth.SetActive(false);
@@ -87,7 +94,7 @@ public class mouvement : MonoBehaviour
 
         if (Input.GetButtonDown("Fire3"))
         {
-            if(list.Count > 0 )
+            if (list.Count > 0)
             {
                 GameObject obj = list[list.Count - 1];
                 list.RemoveAt(list.Count - 1);
@@ -98,7 +105,7 @@ public class mouvement : MonoBehaviour
                 objRb.AddForce(model.transform.forward * force);
             }
         }
-        if(Input.GetButtonDown("Fire2"))
+        if (Input.GetButtonDown("Fire2"))
         {
             if (list.Count > 0)
             {
@@ -111,20 +118,29 @@ public class mouvement : MonoBehaviour
 
         }
 
-        if(Input.GetButtonDown("X"))
+        if (Input.GetButtonDown("X"))
         {
-            if(list.Count == stomachMax)
+            if (list.Count == stomachMax)
             {
                 conc = true;
-                StartCoroutine(concentration());
+                if (!needTime)
+                {
+                    start = Time.timeSinceLevelLoad;
+                    needTime = true;
+
+                }
 
             }
+            
+
         }
         if (Input.GetButtonUp("X"))
         {
+            needTime = false;
             conc = false;
+            current = 0;
         }
-        if(isJump)
+        if (isJump)
         {
             rb.AddForce(0, -gravity, 0);
         }
@@ -135,15 +151,21 @@ public class mouvement : MonoBehaviour
         }
         mouvHor = Input.GetAxis("Horizontal");
         mouvVer = Input.GetAxis("Vertical");
-        Vector2 inputDir = new Vector2 (mouvHor, mouvVer).normalized;
+        Vector2 inputDir = new Vector2(mouvHor, mouvVer).normalized;
         if (inputDir != Vector2.zero)
         {
             float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
             model.transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(model.transform.eulerAngles.y, rotation, ref smooth, 0.2f);
         }
-        rb.AddForce(mouvHor * Time.deltaTime * speed, 0, mouvVer * Time.deltaTime * speed);
+        rb.AddForce(mouvHor * speed, 0, mouvVer * speed);
+        sliderTime();
         cam.rotation = rotateCam;
     }
+    private void FixedUpdate()
+    {
+        //rb.velocity = new Vector3(mouvHor, 0, mouvVer) * Time.fixedDeltaTime * speed;
+    }
+
 
     public void RegisterAspiredObject(aspiration aspired)
     {
@@ -197,12 +219,11 @@ public class mouvement : MonoBehaviour
         rb.useGravity = true;
     }
 
-    IEnumerator concentration()
+    public void concentration()
     {
-        yield return new WaitForSeconds(timer);
-
         if (conc)
         {
+            
             GameObject newboule = Instantiate(boule);
             newboule.transform.position = model.transform.forward + model.transform.position;
             newboule.transform.rotation = model.transform.rotation;
@@ -211,8 +232,23 @@ public class mouvement : MonoBehaviour
                 Destroy(obj);
             }
             list.Clear();
+            needTime = false;
+            current = 0;
         }
         
+    }
+
+    public void sliderTime()
+    {
+        if(needTime)
+        {
+            current = Time.timeSinceLevelLoad - start;
+        }
+        slider.value = current;
+        if (slider.value == slider.maxValue)
+            concentration();
+
+
     }
 
 
