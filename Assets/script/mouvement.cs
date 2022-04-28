@@ -42,6 +42,8 @@ public class mouvement : MonoBehaviour
     [SerializeField] private GameObject model;
     [SerializeField] private GameObject boule;
     [SerializeField] private Slider slider;
+    [SerializeField] private ParticleSystem pouf;
+    [SerializeField] private gameManager gameManager;
     private float smooth;
     private bool conc = false;
     private bool needTime = false;
@@ -61,124 +63,127 @@ public class mouvement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
-        if (Input.GetButtonDown("Jump"))
+        if(!gameManager.isPause)
         {
-            if (!isJump)
+            if (Input.GetButtonDown("Jump"))
             {
-                rb.AddForce(0, jumpForce, 0);
-                isJump = true;
-            }
-            else
-            {
-                isFloating = true;
-            }
-
-        }
-        if (Input.GetButtonUp("Jump"))
-        {
-            isFloating = false;
-            rb.useGravity = true;
-        }
-        if (Input.GetButtonDown("Fire1"))
-        {
-            mouth.SetActive(true);
-
-        }
-
-        if (Input.GetButtonUp("Fire1"))
-        {
-            mouth.SetActive(false);
-
-            foreach (aspiration asp in aspiredObjects)
-                asp.aspired = false;
-
-            aspiredObjects.Clear();
-        }
-
-        if (Input.GetButtonDown("Fire3"))
-        {
-            if (list.Count > 0)
-            {
-                GameObject obj = list[list.Count - 1];
-                list.RemoveAt(list.Count - 1);
-                obj.SetActive(true);
-                obj.transform.position = model.transform.position + model.transform.forward * distance;
-                addMass(-poid);
-                Rigidbody objRb = obj.GetComponent<Rigidbody>();
-                objRb.AddForce(model.transform.forward * force);
-            }
-        }
-        if (Input.GetButtonDown("Fire2"))
-        {
-            if (list.Count > 0)
-            {
-                GameObject obj = list[list.Count - 1];
-                list.RemoveAt(list.Count - 1);
-                obj.SetActive(true);
-                obj.transform.position = model.transform.position + model.transform.forward * distance;
-                addMass(-poid);
-            }
-
-        }
-
-        if (Input.GetButtonDown("X"))
-        {
-            if (list.Count == stomachMax)
-            {
-                conc = true;
-                if (!needTime)
+                if (!isJump)
                 {
-                    start = Time.timeSinceLevelLoad;
-                    needTime = true;
-
+                    rb.AddForce(0, jumpForce, 0);
+                    isJump = true;
+                }
+                else
+                {
+                    isFloating = true;
                 }
 
             }
-            
-
-        }
-        if (Input.GetButtonUp("X"))
-        {
-            needTime = false;
-            conc = false;
-            current = 0;
-        }
-        if (isJump)
-        {
-            if(onWall)
-                rb.AddForce(0, -gravity * wallForceOnJump, 0);
-            else if(!onWall)
-                rb.AddForce(0, -gravity, 0);
-        }
-        if (isFloating)
-        {
-            if (onWall)
+            if (Input.GetButtonUp("Jump"))
             {
-                rb.useGravity = false;
-                rb.AddForce(0, -floatingForce * wallForceOnFloat, 0);
+                isFloating = false;
+                rb.useGravity = true;
             }
-            else if (!onWall)
+            if (Input.GetButtonDown("Fire1"))
             {
-                rb.useGravity = false;
-                rb.AddForce(0, -floatingForce, 0);
+                mouth.SetActive(true);
 
             }
 
+            if (Input.GetButtonUp("Fire1"))
+            {
+                mouth.SetActive(false);
 
+                foreach (aspiration asp in aspiredObjects)
+                    asp.aspired = false;
+
+                aspiredObjects.Clear();
+            }
+
+            if (Input.GetButtonDown("Fire3"))
+            {
+                if (list.Count > 0)
+                {
+                    GameObject obj = list[list.Count - 1];
+                    list.RemoveAt(list.Count - 1);
+                    obj.SetActive(true);
+                    obj.transform.position = model.transform.position + model.transform.forward * distance;
+                    addMass(-poid);
+                    Rigidbody objRb = obj.GetComponent<Rigidbody>();
+                    objRb.AddForce(model.transform.forward * force);
+                }
+            }
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (list.Count > 0)
+                {
+                    GameObject obj = list[list.Count - 1];
+                    list.RemoveAt(list.Count - 1);
+                    obj.SetActive(true);
+                    obj.transform.position = model.transform.position + model.transform.forward * distance;
+                    addMass(-poid);
+                }
+
+            }
+
+            if (Input.GetButtonDown("X"))
+            {
+                if (list.Count == stomachMax)
+                {
+                    conc = true;
+                    if (!needTime)
+                    {
+                        start = Time.timeSinceLevelLoad;
+                        needTime = true;
+
+                    }
+
+                }
+
+
+            }
+            if (Input.GetButtonUp("X"))
+            {
+                needTime = false;
+                conc = false;
+                current = 0;
+            }
+            if (isJump)
+            {
+                if (onWall)
+                    rb.AddForce(0, -gravity * wallForceOnJump, 0);
+                else if (!onWall)
+                    rb.AddForce(0, -gravity, 0);
+            }
+            if (isFloating)
+            {
+                if (onWall)
+                {
+                    rb.useGravity = false;
+                    rb.AddForce(0, -floatingForce * wallForceOnFloat, 0);
+                }
+                else if (!onWall)
+                {
+                    rb.useGravity = false;
+                    rb.AddForce(0, -floatingForce, 0);
+
+                }
+
+
+            }
+            mouvHor = Input.GetAxis("Horizontal");
+            mouvVer = Input.GetAxis("Vertical");
+            Vector2 inputDir = new Vector2(mouvHor, mouvVer).normalized;
+            if (inputDir != Vector2.zero)
+            {
+                float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
+                model.transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(model.transform.eulerAngles.y, rotation, ref smooth, 0.2f);
+            }
+            rb.AddForce(mouvHor * speed, 0, mouvVer * speed);
+            sliderTime();
+            cam.rotation = rotateCam;
         }
-        mouvHor = Input.GetAxis("Horizontal");
-        mouvVer = Input.GetAxis("Vertical");
-        Vector2 inputDir = new Vector2(mouvHor, mouvVer).normalized;
-        if (inputDir != Vector2.zero)
-        {
-            float rotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
-            model.transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(model.transform.eulerAngles.y, rotation, ref smooth, 0.2f);
-        }
-        rb.AddForce(mouvHor * speed, 0, mouvVer * speed);
-        sliderTime();
-        cam.rotation = rotateCam;
+
+        
     }
 
     public void RegisterAspiredObject(aspiration aspired)
@@ -202,6 +207,7 @@ public class mouvement : MonoBehaviour
             isJump = false;
             isFloating = false;
             rb.useGravity = true;
+            pouf.Play();
         }
         if (collision.gameObject.layer == 12)
         {
