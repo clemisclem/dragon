@@ -44,6 +44,7 @@ public class mouvement : MonoBehaviour
     [SerializeField] private Slider slider;
     [SerializeField] private ParticleSystem pouf;
     [SerializeField] private gameManager gameManager;
+    [SerializeField] private GameObject[] pommes;
     private float smooth;
     private bool conc = false;
     private bool needTime = false;
@@ -180,6 +181,7 @@ public class mouvement : MonoBehaviour
             }
             rb.AddForce(mouvHor * speed, 0, mouvVer * speed);
             sliderTime();
+            pommecount();
             cam.rotation = rotateCam;
         }
 
@@ -265,6 +267,45 @@ public class mouvement : MonoBehaviour
         if (slider.value == slider.maxValue)
             concentration();
 
+
+    }
+
+    public void pommecount()
+    {
+        if(list.Count == 0)
+        {
+            foreach(GameObject pomme in pommes)
+            {
+                pomme.SetActive(false);
+            }
+        }
+        else if(list.Count == 1)
+        {
+            pommes[0].SetActive(true);
+            pommes[1].SetActive(false);
+
+        }
+        else if (list.Count == 2)
+        {
+            pommes[1].SetActive(true);
+            pommes[2].SetActive(false);
+        }
+        else if (list.Count == 3)
+        {
+            pommes[2].SetActive(true);
+            pommes[3].SetActive(false);
+
+        }
+        else if (list.Count == 4)
+        {
+            pommes[3].SetActive(true);
+            pommes[4].SetActive(false);
+
+        }
+        else if (list.Count == 5)
+        {
+            pommes[4].SetActive(true);
+        }
 
     }
 
